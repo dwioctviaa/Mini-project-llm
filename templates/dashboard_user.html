@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard User</h2>
+<p>Berikut antreanmu:</p>
+<ul>
+    {% for a in antrean %}
+    <li>{{ a.poli }} - Status: {{ a.status }} - Waktu: {{ a.waktu_daftar }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

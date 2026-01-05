@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Chat Asisten{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Chat Asisten Virtual</h2>
+    <p>Tanyakan informasi seputar layanan Puskesmas.</p>
+
+    <input type="text" id="inputPertanyaan" placeholder="Contoh: Poli gigi buka hari apa?" style="width:100%; padding:10px;">
+    <button id="btnKirim">Kirim</button>
+
+    <div id="chatWindow" style="margin-top:20px; border:1px solid #ddd; padding:10px; max-height:400px; overflow-y:auto;">
+        <div>🤖 Asisten: Silakan ajukan pertanyaan Anda.</div>
+    </div>
+</div>
+
+<script>
+const btn = document.getElementById('btnKirim');
+const input = document.getElementById('inputPertanyaan');
+const chatWindow = document.getElementById('chatWindow');
+
+btn.addEventListener('click', async () => {
+    const pertanyaan = input.value;
+    if (!pertanyaan) return;
+
+    // tampilkan pertanyaan user
+    const userDiv = document.createElement('div');
+    userDiv.textContent = "👤 Kamu: " + pertanyaan;
+    chatWindow.appendChild(userDiv);
+
+    // kirim ke backend
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pertanyaan })
+    });
+
+    const data = await res.json();
+
+    // tampilkan jawaban GPT
+    const botDiv = document.createElement('div');
+    botDiv.textContent = "🤖 Asisten: " + data.jawaban;
+    chatWindow.appendChild(botDiv);
+
+    // scroll ke bawah
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    input.value = "";
+});
+</script>
+{% endblock %}

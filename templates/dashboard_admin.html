@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📊 Statistik Antrean</h2>
+    {% if data %}
+    <table>
+        <thead>
+            <tr>
+                <th>Poli</th>
+                <th>Tanggal</th>
+                <th>Jumlah Antrean</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in data %}
+            <tr>
+                <td>{{ d.poli }}</td>
+                <td>{{ d.tanggal }}</td>
+                <td>{{ d.jumlah_antrean }}</td>
+                <td>
+                    <a href="/admin/poli/{{ d.poli_id }}/antrean">Lihat Detail</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Tidak ada antrean saat ini.</p>
+    {% endif %}
+</div>
+{% endblock %}

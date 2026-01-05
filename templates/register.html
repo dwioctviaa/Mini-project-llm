@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:400px; margin:50px auto; padding:20px;">
+    <h2>Daftar Akun Baru</h2>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        <label>Username</label><br>
+        <input type="text" name="username" placeholder="Masukkan username" required style="width:100%; padding:8px;"><br><br>
+
+        <label>Password</label><br>
+        <input type="password" name="password" placeholder="Masukkan password" required style="width:100%; padding:8px;"><br><br>
+
+        <button type="submit" style="width:100%; padding:10px;">Daftar</button>
+    </form>
+
+    <p style="margin-top:10px;">
+        Sudah punya akun? 
+        <a href="/ui/login">Login di sini</a>
+    </p>
+</div>
+{% endblock %}

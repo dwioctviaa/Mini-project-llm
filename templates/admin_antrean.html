@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Antrean {{ poli.nama }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📋 Antrean Poli {{ poli.nama }}</h2>
+
+    {% if antrean_list %}
+    <table>
+        <thead>
+            <tr>
+                <th>Nomor Antrean</th>
+                <th>Nama Pasien</th>
+                <th>Waktu Daftar</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a, username in antrean_list %}
+            <tr id="row-{{ a.id }}">
+                <td>{{ a.nomor_antrean }}</td>
+                <td>{{ username }}</td>
+                <td>{{ a.waktu_daftar.strftime("%H:%M:%S") }}</td>
+                <td id="status-{{ a.id }}">{{ a.status }}</td>
+                <td>
+                    {% if a.status == "menunggu" %}
+                    <button class="btnSelesai" data-id="{{ a.id }}">Selesai</button>
+                    {% else %}
+                    ✔
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Tidak ada antrean hari ini.</p>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // semua tombol Selesai
+    document.querySelectorAll(".btnSelesai").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const antreanId = btn.getAttribute("data-id");
+            try {
+                const response = await fetch(`/admin/antrean/${antreanId}/selesai`, {
+                    method: "POST"
+                });
+                const data = await response.json();
+                if (data.message) {
+                    // update status di tabel
+                    document.getElementById(`status-${antreanId}`).textContent = "selesai";
+                    btn.remove();
+                } else {
+                    alert("Gagal update status");
+                }
+            } catch(err) {
+                alert("Terjadi kesalahan koneksi");
+            }
+        });
+    });
+});
+</script>
+
+<style>
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 1px solid #ccc;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+button:hover {
+    background-color: #45a049;
+}
+</style>
+
+{% endblock %}

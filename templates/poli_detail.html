@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{{ poli.nama }}{% endblock %}
+
+{% block content %}
+
+<!-- Informasi Poli -->
+<div class="card">
+    <h2>{{ poli.nama }}</h2>
+    <p>{{ poli.deskripsi }}</p>
+</div>
+
+<!-- Jadwal Dokter -->
+<div class="card">
+    <h2>🗓 Jadwal Pelayanan</h2>
+    {% if jadwal %}
+        <ul>
+        {% for j in jadwal %}
+            <li>
+                <strong>{{ j.hari }}</strong> :
+                {{ j.jam_mulai }} - {{ j.jam_selesai }} <br>
+                <small>Dokter: {{ j.dokter }}</small>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Jadwal belum tersedia.</p>
+    {% endif %}
+</div>
+
+<!-- ================= USER ================= -->
+{% if user and user.role|lower == 'user' %}
+<div class="card">
+    <h2>📋 Daftar Antrean</h2>
+
+    {% if antrean_user %}
+        <p style="color:green;">
+            Anda sudah terdaftar (Nomor: {{ antrean_user.nomor_antrean }})
+        </p>
+    {% else %}
+
+        {% if dokter_aktif %}
+            <button id="btnDaftar">Daftar Antrean Sekarang</button>
+            <div id="antreanMessage" style="margin-top:10px;"></div>
+        {% else %}
+            <button disabled style="background:#ccc; cursor:not-allowed;">
+                ❌ Pendaftaran Ditutup
+            </button>
+            <p style="color:red; font-size:13px;">
+                Dokter tidak melayani saat ini.
+            </p>
+        {% endif %}
+
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('btnDaftar')?.addEventListener('click', async function() {
+    const poli_id = "{{ poli.id }}";
+    const user_id = "{{ user.id }}";
+    const messageDiv = document.getElementById('antreanMessage');
+
+    try {
+        const response = await fetch('/user/antrean', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ poli_id: poli_id, user_id: user_id })
+        });
+
+        const data = await response.json();
+        messageDiv.textContent = data.message || data.detail;
+        messageDiv.style.color = data.message ? "green" : "red";
+
+    } catch {
+        messageDiv.textContent = 'Terjadi kesalahan koneksi.';
+        messageDiv.style.color = "red";
+    }
+});
+</script>
+{% endif %}
+
+<!-- ================= ADMIN ================= -->
+{% if user and user.role|lower == 'admin' %}
+<div class="card">
+
+    <h2>🩺 Status Dokter</h2>
+
+    <p>
+        Status:
+        {% if dokter_aktif %}
+            <strong style="color:green;">Aktif</strong>
+        {% else %}
+            <strong style="color:red;">Tidak Aktif</strong>
+        {% endif %}
+        <br>
+        <small>
+            Sumber:
+            {% if sumber_status == "manual" %}
+                Override Admin
+            {% else %}
+                Jam Operasional
+            {% endif %}
+        </small>
+    </p>
+
+    <button onclick="overrideDokter('{{ poli.id }}', true)">✅ Paksa Aktif</button>
+    <button onclick="overrideDokter('{{ poli.id }}', false)">⛔ Paksa Tidak Aktif</button>
+    <button onclick="autoDokter('{{ poli.id }}')">🔄 Kembali Otomatis</button>
+
+    <hr style="margin:20px 0;">
+
+    <h2>📋 Daftar Antrean Poli</h2>
+    {% if antrean_list %}
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+            {% for antrean, username in antrean_list %}
+            <tr>
+                <td>{{ antrean.nomor_antrean }}</td>
+                <td>{{ username }}</td>
+                <td>{{ antrean.status }}</td>
+                <td>
+                    {% if antrean.status != 'selesai' %}
+                        <button onclick="selesaiAntrean('{{ antrean.id }}')">Selesai</button>
+                    {% else %}
+                        ✅
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Belum ada antrean.</p>
+    {% endif %}
+</div>
+
+<script>
+async function overrideDokter(poli_id, aktif) {
+    await fetch(`/admin/poli/${poli_id}/override-dokter?aktif=${aktif}`, {
+        method: "POST"
+    });
+    location.reload();
+}
+
+async function autoDokter(poli_id) {
+    await fetch(`/admin/poli/${poli_id}/auto-dokter`, {
+        method: "POST"
+    });
+    location.reload();
+}
+
+async function selesaiAntrean(id) {
+    await fetch(`/admin/antrean/${id}/selesai`, { method: "POST" });
+    location.reload();
+}
+</script>
+{% endif %}
+
+{% endblock %}

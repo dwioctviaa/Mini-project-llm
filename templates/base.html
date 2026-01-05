@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>Sistem Informasi Puskesmas</h1>
+</header>
+
+<nav>
+    <a href="/ui">Beranda</a>
+    <a href="/ui/poli">Poli</a>
+    <a href="/ui/chat">Asisten</a>
+
+    <!-- User / Admin info -->
+    <span style="float:right; margin-right:10px; color:white;">
+        {% if user %}
+            {% if user.role == "ADMIN" %}
+                Admin: {{ user.username }} |
+            {% else %}
+                Selamat datang, {{ user.username }} |
+            {% endif %}
+            <a href="/ui/logout" style="color:white;">Logout</a>
+        {% else %}
+            <a href="/ui/login" style="color:white;">Login</a> |
+            <a href="/ui/register" style="color:white;">Daftar</a>
+        {% endif %}
+    </span>
+
+</nav>
+
+<div class="main-container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    © 2025 Puskesmas
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Poli{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Daftar Poli Pelayanan</h2>
+    <p>Silakan pilih poli untuk melihat jadwal dokter.</p>
+
+    <div class="poli-grid">
+        {% for p in poli %}
+        <div class="poli-card">
+            <h3>{{ p.nama }}</h3>
+            <p>{{ p.deskripsi }}</p>
+
+            <a href="/ui/poli/{{ p.id }}">Lihat Jadwal</a>
+
+            {% if user %}
+                {% if user.role == 'user' %}
+                    <p style="margin-top:10px;color:green;">Sudah login → bisa daftar antrean di detail poli</p>
+                {% elif user.role == 'admin' %}
+                    <p style="margin-top:10px;color:blue;">cek antrean per poli</p>
+                {% endif %}
+            {% else %}
+                <p style="margin-top:10px;color:red;">
+                    <a href="/ui/login">Login</a> atau <a href="/ui/register">Daftar</a> untuk antrean
+                </p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
